@@ -175,12 +175,18 @@ public class Bot8monitor extends Thread {
 				}
 			}
 
+/*			
 			// This requires a re-built version of the NXTRegulatedMotor that
 			// includes a getPower method
 			local.motorApower = Motor.A.getPower();
 			local.motorBpower = Motor.B.getPower();
 			local.motorCpower = Motor.C.getPower();  
-
+*/
+			// TF TEST fix until regen the class
+			local.motorApower = 1;
+			local.motorBpower = 2;
+			local.motorCpower = 3;
+			
 			// Tilt detection
 			apitch = Math.abs(local.pitch);
 			aroll = Math.abs(local.roll);

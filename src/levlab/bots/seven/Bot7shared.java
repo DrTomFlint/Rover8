@@ -29,6 +29,13 @@ public class Bot7shared {
 		public static final int CLAW_DOWN = 3;
 		public static final int CLAW_UP = 4;
 
+		public static final int GRIP_INIT = 0;
+		public static final int GRIP_UP = 1;
+		public static final int GRIP_MID = 2;
+		public static final int GRIP_DOWN = 3;
+		public static final int GRIP_GOING_UP = 4;
+		public static final int GRIP_GOING_DOWN = 5;
+
 		public static final int MODE_NONE = 0;
 		public static final int MODE_INIT = 1;
 		public static final int MODE_REMOTE = 2;
@@ -59,13 +66,13 @@ public class Bot7shared {
 		String msg = "Startup";
 				
 		// Handles for the 4 sensors, (ports defined in Bot7.java)
-		//ColorSensor lamp;
-	    //CompassHTSensor compass;
+		ColorSensor lamp;
+	    CompassHTSensor compass;
 		//AccelHTSensor accel; 
 	    //UltrasonicSensor sonar;
 	    TomsPilot pilot;
-	    TouchSensor touch1;
-	    TouchSensor touch2;
+	    TouchSensor swGripUp;
+	    TouchSensor swGripDown;
 	    
 		// Sensor outputs
 		int pitch = 0;
@@ -83,8 +90,8 @@ public class Bot7shared {
 		int batteryVolts = 0;
 		int bluetoothSignal = 0;
 
-		int claw = CLAW_NOT;
-		int clawMax = 0;
+		int grip = GRIP_INIT;
+		int gripMax = 0;
 			
 		int motorApos = 0;
 		int motorBpos = 0;

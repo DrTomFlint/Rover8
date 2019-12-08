@@ -1,6 +1,6 @@
 package levlab.bots.seven;
 import lejos.nxt.*;
-import lejos.robotics.Color;
+//import lejos.robotics.Color;
 import lejos.robotics.navigation.Move;
 
 /* Bot7monitor reads the sensors and places the data into the Bot7shared locations.
@@ -36,7 +36,8 @@ public class Bot7monitor extends Thread {
 
 	double turnSpeed = 0;
 	double turnRadius = 0;
-	double[] turnSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
+//	double[] turnSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
+	double[] turnSpeedArray = { -0.5, -0.25, -0.1, -0.06, -0.03, 0.0, 0.03, 0.06, 0.1, 0.25, 0.5 };
 	double[] turnRadiusArray = { 2, 5, 10, 20, 50, 0, -50, -20, -10, -5, -2 };  // arc turns use radius, Left +, Right -
 
 	public Bot7monitor(){
@@ -122,7 +123,7 @@ public class Bot7monitor extends Thread {
 			//local.ztilt = local.accel.getZAccel();
 
 			// Compass
-			//local.bearing = local.compass.getDegrees();
+			local.bearing = local.compass.getDegrees();
 
 			// Ultrasonic
 			//if(local.sonar.getMode()==UltrasonicSensor.MODE_OFF){
@@ -168,103 +169,37 @@ public class Bot7monitor extends Thread {
 			
 			// This requires a re-built version of the NXTRegulatedMotor that
 			// includes a getPower method
-			local.motorApower = Motor.A.getPower();
-			local.motorBpower = Motor.B.getPower();
-			local.motorCpower = Motor.C.getPower();  
+			local.motorApower = (int)Motor.A.getPower();
+			local.motorBpower = (int)Motor.B.getPower();
+			local.motorCpower = (int)Motor.C.getPower();
 
-			// TEST 12-18-2018
-			// Touch1 is claw full down, so prohibit backwards
-			if(local.touch2.isPressed()) {
-				if(local.motorCpower<0) {
-					Motor.C.setAcceleration(6000);
+
+			// State machine logic for the gripper, swGripUp is limit switch in the up direction
+			if(local.swGripUp.isPressed()) {
+				if((local.grip==Bot7shared.GRIP_INIT)||(local.grip==Bot7shared.GRIP_GOING_UP)){
 					Motor.C.flt(true);
+					local.grip=Bot7shared.GRIP_UP;
 				}
-			}
-			if(local.touch1.isPressed()) {
-				if(local.motorCpower>0) {
-					Motor.C.setAcceleration(6000);
-					Motor.C.flt(true);
-				}
+					
 			}
 			
-			// Tilt detection
-			//apitch = Math.abs(local.pitch);
-			//aroll = Math.abs(local.roll);
-
-			/*
-			if((apitch>100)||(aroll>100)){
-				if((tiltState == TILT_OK) || (tiltState == TILT_CAUTION)){
-					// If just entered danger then command a stop immediately
-					local.pilot.setAcceleration(Bot7.ACCEL_MAX);
-					local.pilot.stop();
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-					// set state to indicate how rover entered danger
-					if(local.pilot.getMovement().getDistanceTraveled()>0){
-						tiltState = TILT_NO_FWD;
-					}else{
-						tiltState = TILT_NO_BACK;
-					}
-				}else{	         	    
-					// Already in danger, reset acceleration, don't alter state till escape danger
-					local.pilot.setAcceleration(Bot7.ACCEL_FULL);
+			// State machine logic for the gripper, swGripDown is limit switch in the up direction
+			if(local.swGripDown.isPressed()) {
+				if((local.grip==Bot7shared.GRIP_INIT)||(local.grip==Bot7shared.GRIP_GOING_DOWN)){
+					Motor.C.flt(true);
+					local.grip=Bot7shared.GRIP_DOWN;
+					Motor.C.resetTachoCount();	// this turns regulation back on
+					Motor.C.flt(true);
 				}
-				local.floodLight = Color.RED;
-			}else{
-				if((apitch<40)&&(aroll<40)){
-					tiltState = TILT_OK;
-					local.floodLight = Color.NONE;
-				}
-				if((apitch>50)||(aroll>50)){
-					tiltState = TILT_CAUTION;
-					local.floodLight = Color.BLUE;
-					if(local.mode == Bot7shared.MODE_DRIVE){
-						// if driving, limit forward speed
-						if(local.fwdSpeedIndex>7){
-							local.fwdSpeedIndex=7;
-							updateSpeed();
-						}
-						if(local.fwdSpeedIndex<3){
-							local.fwdSpeedIndex=3;
-							updateSpeed();
-						}
-					}
-				}
+					
 			}
-			old_tiltState = tiltState;
-		*/
-
-/* 12-24-2018 Disabled stall detection as it weakens the bot too much.
- * Was intended for mapping by running into stuff, stalling the motor
- * instead of climbing up the wall and falling over.			
- */
-/*			// Stall detection
-			if(local.motorAstate==Bot7shared.STALLED){
-				if(old_motorAstate != Bot7shared.STALLED){
-					local.pilot.stop();
-					Sound.playTone(3000,20);
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-				}
-			}
-			old_motorAstate = local.motorAstate;
-
-			if(local.motorBstate==Bot7shared.STALLED){
-				if(old_motorBstate != Bot7shared.STALLED){
-					local.pilot.stop();
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-					Sound.playTone(2000,20);
-				}
-			}
-			old_motorBstate = local.motorBstate;
-*/
+						
 			// Lamp, note this is an output!
 			// could also read ambient light.
-//			if (local.floodLight!=old_floodLight){
-//				local.lamp.setFloodlight(local.floodLight);
-//				old_floodLight = local.floodLight;
-//			}
+			if (local.floodLight!=old_floodLight){
+				local.lamp.setFloodlight(local.floodLight);
+				old_floodLight = local.floodLight;
+			}
 
 			// delay before checking again
 			try{

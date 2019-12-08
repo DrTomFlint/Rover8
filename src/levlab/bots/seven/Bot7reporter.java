@@ -41,14 +41,13 @@ import java.io.IOException;
 			           local.dataOut.writeInt(local.fwdSpeedIndex-5);
 			           local.dataOut.writeInt(local.turnSpeedIndex-5);
 			           
-			           local.dataOut.writeInt(local.claw);
+			           local.dataOut.writeInt(local.floodLight);
+			           local.dataOut.writeInt((int)(local.bearing));
+			           local.dataOut.writeInt(local.grip);
+
 			           local.dataOut.writeInt(local.lastCommand);
 			           local.dataOut.writeInt(local.lastData);
 			           
-			           local.dataOut.writeInt(local.pitch);
-			           local.dataOut.writeInt(local.roll);
-			           local.dataOut.writeInt((int)(local.bearing));
-			           local.dataOut.writeInt(local.range);
 			           			         
 			           local.dataOut.flush();
 			           

@@ -3,10 +3,10 @@ package levlab.bots.seven;
 import java.io.IOException;
 
 import lejos.nxt.*;
-//import lejos.nxt.addon.CompassHTSensor; 
+import lejos.nxt.addon.CompassHTSensor; 
 //import lejos.nxt.addon.AccelHTSensor; 
 import java.lang.System;
-//import lejos.robotics.Color;
+import lejos.robotics.Color;
 import levlab.bots.seven.Bot7shared;
 import levlab.bots.test.TomsPilot;
 
@@ -44,10 +44,11 @@ public class Bot7
 	{	   
 		local = Bot7shared.getInstance();
 
-		local.touch1 = new TouchSensor(SensorPort.S1);
-		local.touch2 = new TouchSensor(SensorPort.S2);
-		//local.compass = new CompassHTSensor(SensorPort.S4);
-		//local.lamp = new ColorSensor(SensorPort.S1);
+		local.swGripDown = new TouchSensor(SensorPort.S1);
+		local.swGripUp = new TouchSensor(SensorPort.S2);
+		local.compass = new CompassHTSensor(SensorPort.S3);
+		local.lamp = new ColorSensor(SensorPort.S4);
+		
 		//local.sonar = new UltrasonicSensor(SensorPort.S2);
 		//local.accel = new AccelHTSensor(SensorPort.S3);
 
@@ -91,7 +92,7 @@ public class Bot7
 
 		// Setup motor.c which is the claw
 		Motor.C.setStallThreshold(100, 100);
-		Motor.C.setAcceleration(ACCEL_LOW);
+		Motor.C.setAcceleration(5000);
 
 		// Start with ultrasonic turned off
 //		bot.local.sonar.setMode(UltrasonicSensor.MODE_OFF);
@@ -137,7 +138,6 @@ public class Bot7
 	private void readData()
 	{
 		String msg = "Startup";
-		int i = 0;
 
 		if(local.btState != Bot7shared.BT_OK){
 			// delay before checking again
@@ -177,7 +177,7 @@ public class Bot7
 			case 1:	// status only
 				msg = "Status";
 				break;
-
+/*
 			case 5:	// initialize the accelerometer offset
 				int ptemp = 0;
 				int rtemp = 0;
@@ -204,7 +204,7 @@ public class Bot7
 				local.rollOffset = rtemp/50;
 				msg = "Init";
 				break;
-/*
+
 			case 7:	// sonar commands
 				if(data1==0){
 					local.sonar.setMode(UltrasonicSensor.MODE_OFF);
@@ -220,6 +220,7 @@ public class Bot7
 				}
 				break;
 */
+				
 			case 111:	// move linear arg is distance in 1/100th inch
 				local.mode = Bot7shared.MODE_REMOTE;
 				local.pilot.setAcceleration(ACCEL_FULL);
@@ -278,74 +279,46 @@ public class Bot7
 				msg = "D2 "+local.fwdSpeedIndex+", "+local.turnSpeedIndex;
 				break;
 
-				// 400 is the manipulator group
-			case 401:	// Start Init
-				// For the moment this will not be interruptable
-				//clawSetZero();
-				Motor.C.resetTachoCount();
-				local.claw = Bot7shared.CLAW_ZERO;
-				local.clawMax = 7000;
-				Motor.C.flt();
+			// 400 is the manipulator group
+			// Start Grip commands from 420
 
-				break;
-			case 402:	// Halt Init
-				break;
-			case 403:	// Claw close
-				if(local.claw>0){;
-				Motor.C.setAcceleration(200);
-				Motor.C.setSpeed(700);
-//				Motor.C.rotateTo(0,true);
-				Motor.C.backward();
+			case 420: // Grip Stop
+				Motor.C.flt(true);
+				if((local.grip==Bot7shared.GRIP_GOING_UP)||(local.grip==Bot7shared.GRIP_GOING_DOWN)) {
+					local.grip=Bot7shared.GRIP_MID;
 				}
 				break;
-			case 404: // Claw open
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
+			case 421:  // Grip Up
+				if(local.grip!=Bot7shared.GRIP_UP) {
+					local.grip=Bot7shared.GRIP_GOING_UP;
+					Motor.C.setAcceleration(5000);
 					Motor.C.setSpeed(700);
-//					Motor.C.rotateTo(local.clawMax,true);
+					Motor.C.backward();
+				}
+				break;
+			case 422:  // Grip Down
+				if(local.grip!=Bot7shared.GRIP_DOWN) {
+					local.grip=Bot7shared.GRIP_GOING_DOWN;
+					Motor.C.setAcceleration(5000);
+					Motor.C.setSpeed(700);
 					Motor.C.forward();
 				}
 				break;
-			case 405:  // Claw stop
-				Motor.C.setAcceleration(6000);
-				Motor.C.stop(true);
-				Motor.C.waitComplete();
-				Thread.yield();
-				Motor.C.flt();
-				break;
-			case 406:	// Claw up
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
-					Motor.C.setSpeed(700);
-					Motor.C.rotate(-500,true);
-//					if( (Motor.C.getTachoCount()-500) > local.clawMax){
-//						Motor.C.rotate(-500,true);
-//					}else{
-//						Motor.C.rotateTo(local.clawMax,true);
-//					}
-				}
-				break;
-			case 407: // Claw down
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
-					Motor.C.setSpeed(700);
-					Motor.C.rotate(500,true);
-//					if( (Motor.C.getTachoCount()+500) < 0){
-//						Motor.C.rotate(500,true);
-//					}else{
-//						Motor.C.rotateTo(0,true);
-//					}
-				}
-				break;
 
-//			case 510: // color lamp 
-//				local.floodLight = data1;
-//				msg ="Lamp Color "+data1;
-//				break;
-//			case 512:	// Lamp off
-//				local.floodLight = Color.NONE;
-//				msg = "Lamp Off";
-//				break;
+
+			case 510: // color lamp 
+				local.floodLight = data1;
+				msg ="Lamp Color "+data1;
+				break;
+			case 512:	// Lamp off
+				local.floodLight = Color.NONE;
+				msg = "Lamp Off";
+				break;
+			case 515:	// Lamp toggle
+				local.floodLight -=1;
+				if(local.floodLight<-1)local.floodLight=2;
+				msg = "Lamp Toggle";
+				break;
 
 				// default to handle unknown commands
 			default:
