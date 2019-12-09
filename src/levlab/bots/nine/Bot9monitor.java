@@ -29,7 +29,8 @@ public class Bot9monitor extends Thread {
 
 	double turnSpeed = 0;
 	double turnRadius = 0;
-	double[] turnSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
+//	double[] turnSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
+	double[] turnSpeedArray = { -0.5, -0.25, -0.1, -0.06, -0.03, 0.0, 0.03, 0.06, 0.1, 0.25, 0.5 };
 	double[] turnRadiusArray = { 2, 5, 10, 20, 50, 0, -50, -20, -10, -5, -2 };  // arc turns use radius, Left +, Right -
 
 
@@ -102,23 +103,6 @@ public class Bot9monitor extends Thread {
 			// Battery
 			local.batteryVolts = Battery.getVoltageMilliVolt();
 
-			// Compass
-			local.bearing = local.compass.getDegrees();
-
-			// Ultrasonic
-			if(local.sonar.getMode()==UltrasonicSensor.MODE_OFF){
-				local.range = -1;
-			}else{
-				local.range = local.sonar.getDistance();
-			}
-
-			// Lamp, note this is an output!
-			// could also read ambient light.
-			if (local.floodLight!=old_floodLight){
-				local.lamp.setFloodlight(local.floodLight);
-				old_floodLight = local.floodLight;
-			}
-
 			// Motor positions
 			local.motorApos = Motor.A.getTachoCount();
 			local.motorBpos = Motor.B.getTachoCount();
@@ -159,30 +143,6 @@ public class Bot9monitor extends Thread {
 			local.motorApower = (int) Motor.A.getPower();
 			local.motorBpower = (int) Motor.B.getPower();
 			local.motorCpower = (int) Motor.C.getPower();  
-//			local.motorApower = 22;
-//			local.motorBpower = 23;
-//			local.motorCpower = 24;  
-
-			// Stall detection
-			if(local.motorAstate==Bot8shared.STALLED){
-				if(old_motorAstate != Bot8shared.STALLED){
-					local.pilot.stop();
-					Sound.playTone(3000,20);
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-				}
-			}
-			old_motorAstate = local.motorAstate;
-
-			if(local.motorBstate==Bot8shared.STALLED){
-				if(old_motorBstate != Bot8shared.STALLED){
-					local.pilot.stop();
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-					Sound.playTone(2000,20);
-				}
-			}
-			old_motorBstate = local.motorBstate;
 
 			// delay before checking again
 			try{

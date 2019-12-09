@@ -49,10 +49,10 @@ public class Bot9
 	{	   
 		local = Bot9shared.getInstance();
 
-		local.compass = new CompassHTSensor(SensorPort.S4);
-		local.lamp = new ColorSensor(SensorPort.S1);
-		local.sonar = new UltrasonicSensor(SensorPort.S3);
-		//       local.accel = new AccelHTSensor(SensorPort.S4);
+		//local.compass = new CompassHTSensor(SensorPort.S4);
+		//local.lamp = new ColorSensor(SensorPort.S1);
+		//local.sonar = new UltrasonicSensor(SensorPort.S3);
+		//local.accel = new AccelHTSensor(SensorPort.S4);
 
 		double diam = 0.4;		// inches, set experimentally
 		double trackwidth = 13.0;	// also in inches, set experimentally not by measurement
@@ -96,13 +96,12 @@ public class Bot9
 		Motor.C.setStallThreshold(100, 100);
 		Motor.C.setAcceleration(ACCEL_LOW);
 
-		// Start with ultrasonic turned off
-		bot.local.sonar.setMode(UltrasonicSensor.MODE_OFF);
-
 		// Startup the main command processing thread
 		bot.go();
 
 	}
+	
+	/*
 	private void clawSetZero(){
 		NXTMotor Claw = new NXTMotor(MotorPort.C);
 		int pos = 999;
@@ -129,6 +128,7 @@ public class Bot9
 		Claw.flt();
 
 	}
+	*/
 
 	/**
 	 * decode incoming messages
@@ -176,21 +176,7 @@ public class Bot9
 				msg = "Status";
 				break;
 
-			case 7:	// sonar commands
-				if(data1==0){
-					local.sonar.setMode(UltrasonicSensor.MODE_OFF);
-					msg = "Sonar Off";
-				}
-				if(data1==1){
-					local.sonar.setMode(UltrasonicSensor.MODE_PING);	     			 
-					msg = "Sonar Ping";
-				}
-				if(data1==2){
-					local.sonar.setMode(UltrasonicSensor.MODE_CONTINUOUS);	     			 
-					msg = "Sonar On";
-				}
-				break;
-
+/*				
 			case 111:	// move linear arg is distance in 1/100th inch
 				local.mode = Bot8shared.MODE_REMOTE;
 				local.pilot.setAcceleration(ACCEL_FULL);
@@ -216,7 +202,8 @@ public class Bot9
 				local.pilot.setRotateSpeed(TURN_FULL);
 				local.pilot.arc((double)data1/100, (double)data2, true);
 				break;
-
+*/
+				
 				// Drive 2 Menus:	 
 			case 151: // Fwd
 				local.mode = Bot8shared.MODE_DRIVE;
@@ -249,64 +236,30 @@ public class Bot9
 				msg = "D2 "+local.fwdSpeedIndex+", "+local.turnSpeedIndex;
 				break;
 
-				// 400 is the manipulator group
-			case 401:	// Start Init
-				// For the moment this will not be interruptable
-				clawSetZero();
-				break;
-			case 402:	// Halt Init
-				break;
-			case 403:	// Claw close
-				if(local.claw>0){;
-				Motor.C.setAcceleration(200);
-				Motor.C.setSpeed(200);
-				Motor.C.rotateTo(local.clawMax,true);
-				}
-				break;
-			case 404: // Claw open
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
-					Motor.C.setSpeed(200);
-					Motor.C.rotateTo(0,true);
-				}
-				break;
-			case 405:  // Claw stop
+				
+			case 600: // Stop
 				Motor.C.stop(true);
-				Motor.C.waitComplete();
-				Thread.yield();
-				Motor.C.flt();
+				msg = "Cam Stop";
 				break;
-			case 406:	// Claw up
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
-					Motor.C.setSpeed(200);
-					if( (Motor.C.getTachoCount()-10) > local.clawMax){
-						Motor.C.rotate(-10,true);
-					}else{
-						Motor.C.rotateTo(local.clawMax,true);
-					}
-				}
+				
+			case 601: // Up
+				Motor.C.setAcceleration(6000);
+				Motor.C.setSpeed(10);
+				Motor.C.backward();
+				msg = "Cam Up";
 				break;
-			case 407: // Claw down
-				if(local.claw>0){
-					Motor.C.setAcceleration(200);
-					Motor.C.setSpeed(200);
-					if( (Motor.C.getTachoCount()+10) < 0){
-						Motor.C.rotate(10,true);
-					}else{
-						Motor.C.rotateTo(0,true);
-					}
-				}
+				
+			case 602: // Down
+				Motor.C.setAcceleration(6000);
+				Motor.C.setSpeed(10);
+				Motor.C.forward();
+				msg = "Cam Down";
 				break;
 
-
-			case 510: // color lamp 
-				local.floodLight = data1;
-				msg ="Lamp Color "+data1;
-				break;
-			case 512:	// Lamp off
-				local.floodLight = Color.NONE;
-				msg = "Lamp Off";
+			case 603: // Stow
+				msg = "Cam Stow";
+				Motor.C.resetTachoCount();
+				Motor.C.flt(true);
 				break;
 
 				// default to handle unknown commands

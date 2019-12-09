@@ -31,23 +31,19 @@ import java.io.IOException;
 			           local.dataOut.writeInt(local.batteryVolts);
 			           local.dataOut.writeInt(local.motorApos);
 			           local.dataOut.writeInt(local.motorBpos);
-			           local.dataOut.writeInt(local.motorCpos);
-			           
+			           local.dataOut.writeInt(local.motorCpos);			           
 			           local.dataOut.writeInt(local.motorApower);
 			           local.dataOut.writeInt(local.motorBpower);
 			           local.dataOut.writeInt(local.motorCpower);
+			           
 			           local.dataOut.writeInt(local.motorAstate);
 			           local.dataOut.writeInt(local.motorBstate);
+			           
 			           /* note that speed indices are adjusted to read +/-5, with 0 center (stop) */
 			           local.dataOut.writeInt(local.fwdSpeedIndex-5);
 			           local.dataOut.writeInt(local.turnSpeedIndex-5);
-
-			           local.dataOut.writeInt(local.claw);
 			           local.dataOut.writeInt(local.lastCommand);
 			           local.dataOut.writeInt(local.lastData);
-
-			           local.dataOut.writeInt((int)(local.bearing));
-			           local.dataOut.writeInt(local.range);
 
 			           local.dataOut.flush();
 			           
