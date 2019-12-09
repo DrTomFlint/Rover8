@@ -115,27 +115,13 @@ public class Bot8monitor extends Thread {
 			// Battery
 			local.batteryVolts = Battery.getVoltageMilliVolt();
 
-			// Accelerometer
-			local.pitch = (local.accel.getXAccel()-local.pitchOffset);  // nose up is +, nose down is -
-			local.roll = -(local.accel.getYAccel()+local.rollOffset);	// right side high is +, left side high is -
-			// TF since Z axis acceleration is not used don't read it.
-			//local.ztilt = local.accel.getZAccel();
-
 			// Compass
 			local.bearing = local.compass.getDegrees();
-
-			// Ultrasonic
-			if(local.sonar.getMode()==UltrasonicSensor.MODE_OFF){
-				local.range = -1;
-			}else{
-				local.range = local.sonar.getDistance();
-			}
 
 			// Motor positions
 			local.motorApos = Motor.A.getTachoCount();
 			local.motorBpos = Motor.B.getTachoCount();
 			local.motorCpos = Motor.C.getTachoCount();
-
 
 			// Check the motor states
 			if(Motor.A.isMoving()){
@@ -174,91 +160,13 @@ public class Bot8monitor extends Thread {
 					Motor.C.flt(true);
 				}
 			}
-
-/*			
+			
 			// This requires a re-built version of the NXTRegulatedMotor that
 			// includes a getPower method
-			local.motorApower = Motor.A.getPower();
-			local.motorBpower = Motor.B.getPower();
-			local.motorCpower = Motor.C.getPower();  
-*/
-			// TF TEST fix until regen the class
-			local.motorApower = 1;
-			local.motorBpower = 2;
-			local.motorCpower = 3;
-			
-			// Tilt detection
-			apitch = Math.abs(local.pitch);
-			aroll = Math.abs(local.roll);
+			local.motorApower = (int)Motor.A.getPower();
+			local.motorBpower = (int)Motor.B.getPower();
+			local.motorCpower = (int)Motor.C.getPower();  
 
-			/*
-			if((apitch>100)||(aroll>100)){
-				if((tiltState == TILT_OK) || (tiltState == TILT_CAUTION)){
-					// If just entered danger then command a stop immediately
-					local.pilot.setAcceleration(Bot8.ACCEL_MAX);
-					local.pilot.stop();
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-					// set state to indicate how rover entered danger
-					if(local.pilot.getMovement().getDistanceTraveled()>0){
-						tiltState = TILT_NO_FWD;
-					}else{
-						tiltState = TILT_NO_BACK;
-					}
-				}else{	         	    
-					// Already in danger, reset acceleration, don't alter state till escape danger
-					local.pilot.setAcceleration(Bot8.ACCEL_FULL);
-				}
-				local.floodLight = Color.RED;
-			}else{
-				if((apitch<40)&&(aroll<40)){
-					tiltState = TILT_OK;
-					local.floodLight = Color.NONE;
-				}
-				if((apitch>50)||(aroll>50)){
-					tiltState = TILT_CAUTION;
-					local.floodLight = Color.BLUE;
-					if(local.mode == Bot8shared.MODE_DRIVE){
-						// if driving, limit forward speed
-						if(local.fwdSpeedIndex>7){
-							local.fwdSpeedIndex=7;
-							updateSpeed();
-						}
-						if(local.fwdSpeedIndex<3){
-							local.fwdSpeedIndex=3;
-							updateSpeed();
-						}
-					}
-				}
-			}
-			old_tiltState = tiltState;
-		*/
-
-/* Disabled stall detect 12-26-2018
- * 			
- 
-			// Stall detection
-			if(local.motorAstate==Bot8shared.STALLED){
-				if(old_motorAstate != Bot8shared.STALLED){
-					local.pilot.stop();
-					Sound.playTone(3000,20);
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-				}
-			}
-			old_motorAstate = local.motorAstate;
-
-			if(local.motorBstate==Bot8shared.STALLED){
-				if(old_motorBstate != Bot8shared.STALLED){
-					local.pilot.stop();
-					local.fwdSpeedIndex = 5;
-					local.turnSpeedIndex = 5;
-					Sound.playTone(2000,20);
-				}
-			}
-			old_motorBstate = local.motorBstate;
-*/
-			
 			// Lamp, note this is an output!
 			// could also read ambient light.
 			if (local.floodLight!=old_floodLight){

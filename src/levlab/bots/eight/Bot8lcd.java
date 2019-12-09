@@ -31,16 +31,16 @@ public class Bot8lcd extends Thread {
                LCD.drawInt((int)(local.bearing), (int)4,6,1);
 
                // Line 2
-               LCD.drawString("Pitch",0,2);
-               LCD.drawInt(local.pitch,(int)4,6,2);
+               //LCD.drawString("Pitch",0,2);
+               //LCD.drawInt(local.pitch,(int)4,6,2);
                
                // Line 3
-               LCD.drawString("Roll",0,3);
-               LCD.drawInt(local.roll,(int)4,6,3);
+               //LCD.drawString("Roll",0,3);
+               //LCD.drawInt(local.roll,(int)4,6,3);
                
                // Line 4
-               LCD.drawString("Range",0,4);
-               LCD.drawInt((int)(local.range), (int)4,6,4);
+               //LCD.drawString("Range",0,4);
+               //LCD.drawInt((int)(local.range), (int)4,6,4);
                
                // Line 5
                LCD.drawString("Cmd",0,5);

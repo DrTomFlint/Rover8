@@ -44,8 +44,8 @@ public class Bot8
 
 		local.compass = new CompassHTSensor(SensorPort.S4);
 		local.lamp = new ColorSensor(SensorPort.S1);
-		local.sonar = new UltrasonicSensor(SensorPort.S2);
-		local.accel = new AccelHTSensor(SensorPort.S3);
+//		local.sonar = new UltrasonicSensor(SensorPort.S2);
+//		local.accel = new AccelHTSensor(SensorPort.S3);
 
 		// add a differential pilot
 		double diam = 0.4;		// inches, set experimentally
@@ -88,9 +88,6 @@ public class Bot8
 		// Setup motor.c which is the claw
 		Motor.C.setStallThreshold(100, 100);
 		Motor.C.setAcceleration(ACCEL_LOW);
-
-		// Start with ultrasonic turned off
-		bot.local.sonar.setMode(UltrasonicSensor.MODE_OFF);
 
 		// Startup the main command processing thread
 		bot.go();
@@ -329,6 +326,12 @@ public class Bot8
 				local.floodLight = Color.NONE;
 				msg = "Lamp Off";
 				break;
+			case 515:	// Lamp toggle
+				local.floodLight -=1;
+				if(local.floodLight<-1)local.floodLight=2;
+				msg = "Lamp Toggle";
+				break;
+
 
 				// default to handle unknown commands
 			default:
