@@ -169,8 +169,8 @@ public class Bot7monitor extends Thread {
 			
 			// This requires a re-built version of the NXTRegulatedMotor that
 			// includes a getPower method
-			local.motorApower = (int)Motor.A.getPower();
-			local.motorBpower = (int)Motor.B.getPower();
+			local.motorApower = -(int)Motor.A.getPower();
+			local.motorBpower = -(int)Motor.B.getPower();
 			local.motorCpower = (int)Motor.C.getPower();
 
 

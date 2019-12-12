@@ -154,12 +154,9 @@ public class Bot5monitor extends Thread {
 			// This requires a re-built version of the NXTRegulatedMotor that
 			// includes a getPower method
 			// TEST 12-8-18 not ready to rebuild the lejos class, so comment these out:
-//			local.motorApower = Motor.A.getPower();
-//			local.motorBpower = Motor.B.getPower();
-//			local.motorCpower = Motor.C.getPower();  
-			local.motorApower = 22;
-			local.motorBpower = 23;
-			local.motorCpower = 24;  
+			local.motorApower = (int)Motor.A.getPower();
+			local.motorBpower = (int)Motor.B.getPower();
+			local.motorCpower = (int)Motor.C.getPower();  
 
 
 			// Stall detection

@@ -1,5 +1,6 @@
 package levlab.bots.five;
 
+import lejos.nxt.Motor;
 import lejos.nxt.Sound;
 import lejos.nxt.comm.Bluetooth;
 
@@ -53,6 +54,11 @@ public class Bot5comms extends Thread {
  			   local.dataIn = null;
  			   local.connect = null; 	
  			   local.btState = Bot5shared.BT_NOT;
+ 			   // also turn off any running motors
+ 			   Motor.A.flt(true);
+ 			   Motor.B.flt(true);
+ 			   Motor.C.flt(true);
+
   		      // Long low beep for a bluetooth error
 	 			    Sound.playTone(300, 300);
 	 			    Sound.pause(350);
