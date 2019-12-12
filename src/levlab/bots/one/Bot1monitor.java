@@ -24,14 +24,11 @@ public class Bot1monitor extends Thread {
 	Move moveScaled = null;
 
 	// updated for use with pilot methods 150+
-	double fwdSpeed = 0;
-	double[]fwdSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
+	int fwdSpeed = 0;
+	int[]fwdSpeedArray = { -500, -400, -300, -200, -100, 0, 100, 200, 300, 400, 500 };
 
-	double turnSpeed = 0;
-	double turnRadius = 0;
-//	double[] turnSpeedArray = { -1.0, -0.6, -0.4, -0.2, -0.1, 0.0, 0.1, 0.2, 0.4, 0.6, 1.0 };
-	double[] turnSpeedArray = { -0.5, -0.25, -0.1, -0.06, -0.03, 0.0, 0.03, 0.06, 0.1, 0.25, 0.5 };
-	double[] turnRadiusArray = { 2, 5, 10, 20, 50, 0, -50, -20, -10, -5, -2 };  // arc turns use radius, Left +, Right -
+	int turnSpeed = 0;
+	int[] turnSpeedArray = { 150, 120, 90, 60, 30, 0, -30, -60, -90, -120, -150 };
 
 
 	public Bot1monitor(){
@@ -41,45 +38,22 @@ public class Bot1monitor extends Thread {
 
 		// Use index and max speed available to set fwdSpeed and turnSpeed, note that arc moves use 
 		// radius rather than turn speed
-		fwdSpeed = local.pilot.getMaxTravelSpeed() * fwdSpeedArray [ local.fwdSpeedIndex ];
-		turnSpeed = local.pilot.getMaxRotateSpeed() * turnSpeedArray [ local.turnSpeedIndex ];
-		turnRadius = turnRadiusArray [ local.turnSpeedIndex ];
+		fwdSpeed = fwdSpeedArray [ local.fwdSpeedIndex ];
+		turnSpeed = turnSpeedArray [ local.turnSpeedIndex ];
 		
-		if((local.fwdSpeedIndex==5)&&(local.turnSpeedIndex==5)){
-			// Came to a stop maybe by increment/decrement
-			local.pilot.stop();
+		// control power to rear wheels
+		if(fwdSpeed==0) Motor.A.flt(true);
+		if(fwdSpeed>0) {
+			Motor.A.setSpeed( (int)(fwdSpeed));
+			Motor.A.backward();
 		}
-		if((local.fwdSpeedIndex!=5)&&(local.turnSpeedIndex==5)){
-			// Moving forward or back
-			if(fwdSpeed>0){
-				local.pilot.setTravelSpeed(fwdSpeed);
-				local.pilot.forward();
-			}
-			if(fwdSpeed<0){
-				local.pilot.setTravelSpeed(-fwdSpeed);
-				local.pilot.backward();
-			}
+		if(fwdSpeed<0) {
+			Motor.A.setSpeed( (int)(-fwdSpeed));
+			Motor.A.forward();
 		}
-		if((local.fwdSpeedIndex==5)&&(local.turnSpeedIndex!=5)){
-			// Pure turning in place
-			if(turnSpeed>0){
-				local.pilot.setRotateSpeed(turnSpeed);
-				local.pilot.rotateRight();
-			}else{
-				local.pilot.setRotateSpeed(-turnSpeed);
-				local.pilot.rotateLeft();
-			}		 
-		}
-		if((local.fwdSpeedIndex!=5)&&(local.turnSpeedIndex!=5)){
-			// Arc turns
-			if(fwdSpeed>0){
-				local.pilot.setTravelSpeed(fwdSpeed);
-				local.pilot.arcForward(turnRadius);
-			}else{
-				local.pilot.setTravelSpeed(-fwdSpeed);
-				local.pilot.arcBackward(-turnRadius);
-			}
-		}
+
+		// control the steering
+		Motor.B.rotateTo(turnSpeed,true);
 	}
 
 	public void run(){

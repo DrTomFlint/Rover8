@@ -165,11 +165,15 @@ public class Bot1
 			switch(command){
 
 			case 0:	// halt all
-				local.pilot.setAcceleration(ACCEL_MAX);
-				local.pilot.stop();
+				//local.pilot.setAcceleration(ACCEL_MAX);
+				//local.pilot.stop();
 				local.fwdSpeedIndex = 5;
 				local.turnSpeedIndex = 5;
-				local.pilot.setAcceleration(ACCEL_FULL);
+				local.drive=1;
+//				Motor.A.flt(true);
+//				Motor.B.rotateTo(0,true);
+				
+				//local.pilot.setAcceleration(ACCEL_FULL);
 				msg = "Halt All";
 				break;
 
@@ -261,6 +265,9 @@ public class Bot1
 				msg = "Cam Stow";
 				Motor.C.resetTachoCount();
 				Motor.C.flt(true);
+// TEST
+				Motor.B.resetTachoCount();
+				Motor.B.flt(true);
 				break;
 
 				// default to handle unknown commands
